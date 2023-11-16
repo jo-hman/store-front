@@ -1,7 +1,9 @@
 import { MouseEvent, useState } from "react";
-import { createAccessCodeUrl, createAccountUrl, defaultHeaders } from "../utils/storeApi";
+import { createAccessCodeUrl, createAccountUrl, defaultHeaders, jwtLocalStorageKey } from "../utils/storeApi";
 
-const Login = () => {
+const Login: React.FC<{
+    checkExpiration: () => void;
+}> = ({ checkExpiration })=> {
 
     const [email, setEmail] = useState(''); 
     const [password, setPassword] = useState(''); 
@@ -29,7 +31,8 @@ const Login = () => {
             'headers': defaultHeaders
         })
         .then(response => response.json())
-        .then(response => console.log(response.jwt));
+        .then(response => localStorage.setItem(jwtLocalStorageKey, response.jwt))
+        .then(() => checkExpiration());
     } 
 
     return (
