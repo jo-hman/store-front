@@ -1,7 +1,8 @@
 import { MouseEvent, useState } from "react";
-import { createAccessCodeUrl, createAccountUrl, defaultHeaders, jwtLocalStorageKey } from "../utils/storeApi";
+import { accountsUrl, createAccessCodeUrl, defaultHeaders } from "../utils/storeApi";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from 'yup';
+import { jwtLocalStorageKey } from "../utils/jwtUtils";
 
 interface AccountRequest {
     email: string;
@@ -25,7 +26,7 @@ const Login: React.FC<{
     });
 
     const registerHandler = (accountRequest: AccountRequest) => {
-        fetch(createAccountUrl, {
+        fetch(accountsUrl, {
             'method': 'POST',
             'body': JSON.stringify({
                 email: accountRequest.email,
@@ -39,7 +40,8 @@ const Login: React.FC<{
             }
             return response.json();
         })
-        .then(response => console.log(response.jwt))
+        .then(response => localStorage.setItem(jwtLocalStorageKey, response.jwt))
+        .then(() => checkExpiration())
         .catch(() => setIsError(true));
     };
 
@@ -62,7 +64,7 @@ const Login: React.FC<{
         .then(() => checkExpiration())
         .catch(() => setIsError(true));
     }; 
-    
+
     return (
         <Formik initialValues={accountRequestInitialValues}
             validationSchema={validation}

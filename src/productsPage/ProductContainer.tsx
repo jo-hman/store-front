@@ -2,13 +2,14 @@ import Product from "./product/Product";
 
 const ProductContainer: React.FC<{
     product: Product;
-}> = ({ product }) => {
+    isUsersProduct: boolean;
+}> = ({ product, isUsersProduct }) => {
 
-    //todo write checkbox logic
     return (
         <div>
-            <input type="checkbox" value={product.isSelected.toString()}/>
+            <input type="checkbox" value={product.isSelected.toString()} onClick={() => {product.isSelected = !product.isSelected;}} disabled={isUsersProduct}/>
             <strong>{product.productData.name}</strong>
+            { isUsersProduct && <text> is your product</text> }
         </div>
     );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import Login from './login/Login';
 import ProductsPage from './productsPage/ProductsPage';
-import { jwtLocalStorageKey } from './utils/storeApi';
+import { JwtPayload, extractJwtPayload, jwtLocalStorageKey } from './utils/jwtUtils';
 
 function App() {
 
@@ -12,8 +12,7 @@ function App() {
     const jwt = localStorage.getItem(jwtLocalStorageKey);
     if (jwt) {
 
-      const decoded: any = JSON.parse(atob(jwt.split('.')[1]));
-
+      const decoded: JwtPayload = extractJwtPayload(jwt);
       const expiration = decoded.exp * 1000;
 
       if (Date.now() > expiration) {
@@ -32,7 +31,8 @@ function App() {
 
   return (
     <div>
-      {jwtExpired ? (
+      {
+       jwtExpired ? (
         <Login checkExpiration={checkTokenExpiration}/>
       ) : (
         <ProductsPage />

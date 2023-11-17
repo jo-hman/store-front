@@ -2,8 +2,9 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Modal from 'react-modal';
-import { createProductUrl, defaultHeadersWithAuthorization, jwtLocalStorageKey } from '../utils/storeApi';
+import { createProductUrl, defaultHeadersWithAuthorization } from '../utils/storeApi';
 import { useState } from 'react';
+import { jwtLocalStorageKey } from '../utils/jwtUtils';
 
 Modal.setAppElement('#root');
 
