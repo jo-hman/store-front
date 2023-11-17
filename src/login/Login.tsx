@@ -1,64 +1,100 @@
 import { MouseEvent, useState } from "react";
 import { createAccessCodeUrl, createAccountUrl, defaultHeaders, jwtLocalStorageKey } from "../utils/storeApi";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import * as Yup from 'yup';
+
+interface AccountRequest {
+    email: string;
+    password: string;
+}
 
 const Login: React.FC<{
     checkExpiration: () => void;
 }> = ({ checkExpiration })=> {
 
-    const [email, setEmail] = useState(''); 
-    const [password, setPassword] = useState(''); 
+    const [isError, setIsError] = useState(false);
 
-    const registerHandler = (event: MouseEvent) => {
+    const accountRequestInitialValues: AccountRequest = {
+        email: '',
+        password: ''
+    };
+
+    const validation = Yup.object({
+        email: Yup.string().required('Email is required'),
+        password: Yup.string().required('Password is required'),
+    });
+
+    const registerHandler = (accountRequest: AccountRequest) => {
         fetch(createAccountUrl, {
             'method': 'POST',
             'body': JSON.stringify({
-                email: email,
-                password: password
+                email: accountRequest.email,
+                password: accountRequest.password
               }),
             'headers': defaultHeaders,
         })
-        .then(response => response.json())
-        .then(response => console.log(response.jwt));
-    } 
+        .then(response => {
+            if (!response.ok) {
+                throw new Error();
+            }
+            return response.json();
+        })
+        .then(response => console.log(response.jwt))
+        .catch(() => setIsError(true));
+    };
 
-    const loginHandler = (event: MouseEvent) => {
+    const loginHandler = (accountRequest: AccountRequest) => {
         fetch(createAccessCodeUrl, {
             'method': 'POST',
             'body': JSON.stringify({
-                email: email,
-                password: password
+                email: accountRequest.email,
+                password: accountRequest.password
               }),
             'headers': defaultHeaders
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error();
+            }
+            return response.json();
+        })
         .then(response => localStorage.setItem(jwtLocalStorageKey, response.jwt))
-        .then(() => checkExpiration());
-    } 
-
+        .then(() => checkExpiration())
+        .catch(() => setIsError(true));
+    }; 
+    
     return (
-        <div >
-            <h1>Login</h1>
-            <label>
-                Email:
-                <input
-                    type='text'
-                    name='email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)} 
-                    placeholder='Enter your email' />
-            </label>
-            <label>
-                Password:
-                <input
-                    type='password'
-                    name='password'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)} 
-                    placeholder='Enter your password'/>
-            </label>
-            <button onClick={loginHandler}>Login</button>
-            <button onClick={registerHandler}>Register</button>
-        </div>
+        <Formik initialValues={accountRequestInitialValues}
+            validationSchema={validation}
+            onSubmit={loginHandler}
+            initialErrors={{'email': 'Required', 'password': 'Required'}}>
+            {({ isValid, values }) => (
+                <Form>
+                    <div>
+                        <label htmlFor='email'>Email:</label>
+                        <Field type='text' id='email' name='email' />
+                        <ErrorMessage name='email' component='div' />
+                    </div>
+                    <div>
+                        <label htmlFor='password'>Password:</label>
+                        <Field type='password' id='password' name='password' />
+                        <ErrorMessage name='password' component='div' />
+                    </div>
+
+                    <div>
+                        <button type="submit" disabled={!isValid} >Login</button>
+                    </div>
+                    <div>
+                        <button type="button" disabled={!isValid} onClick={() => registerHandler(values)}>Register</button>
+                    </div>
+                    {isError && (
+                        <div>
+                            <p>You cannot log in, you have provided wrong credentials or you cannot register with already existing account</p>
+                        </div>
+                    )}
+                </Form>
+                )}
+        </Formik>
     )
 }
 

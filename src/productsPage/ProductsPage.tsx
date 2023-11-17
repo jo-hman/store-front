@@ -3,10 +3,13 @@ import { defaultHeadersWithAuthorization, getProductsUrl, jwtLocalStorageKey } f
 import ProductContainer from "./ProductContainer";
 import Product from "./product/Product";
 import ProductData from "./product/ProductData";
+import ProductCreationModal from "./ProductCreationModal";
+
 
 const ProductsPage = () => {
 
     const [products, setProducts] = useState<Product[]>([]);
+    const [modal, setModal] = useState(false);
 
     const mapResponseToProducts = (response: any): Product[] => {
         return response.map((product: ProductData) => {
@@ -14,17 +17,26 @@ const ProductsPage = () => {
         });
     }
 
-    useEffect(() => {
+    const fetchProducts = () => {
         fetch(getProductsUrl, {
             'method': 'GET',
             'headers': defaultHeadersWithAuthorization(localStorage.getItem(jwtLocalStorageKey)),
         })
         .then(response => response.json())
         .then(response => setProducts(mapResponseToProducts(response)));
+    }
+
+    const onModalClose = () => {
+        setModal(false);
+        fetchProducts();
+    }
+
+    useEffect(() => {
+        fetchProducts();
     }, []);
 
     const createNewProductHandler = (event: MouseEvent) => {
-        //todo open modal with product creation
+        setModal(true);
     }
 
     const orderHandler = (event: MouseEvent) => {
@@ -43,6 +55,8 @@ const ProductsPage = () => {
                    <ProductContainer product={product}/> 
                 ))}
             </div>
+
+            <ProductCreationModal isOpen={modal} onClose={onModalClose}/>
         </div>
     );
 }
