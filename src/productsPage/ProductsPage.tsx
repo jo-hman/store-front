@@ -5,12 +5,14 @@ import Product from "./product/Product";
 import ProductData from "./product/ProductData";
 import ProductCreationModal from "./ProductCreationModal";
 import { extractJwtPayload, jwtLocalStorageKey } from "../utils/jwtUtils";
-
+import OrderAcceptedModal from "./OrderAcceptedModal";
+import { Button, Container, List, Typography } from "@mui/material";
 
 const ProductsPage = () => {
 
     const [products, setProducts] = useState<Product[]>([]);
-    const [modal, setModal] = useState(false);
+    const [productCreationModal, setProductCreationModal] = useState(false);
+    const [orderAcceptedModal, setOrderAcceptedModal] = useState(false);
     const [hideMyProducts, setHideMyProducts] = useState(true);
 
     const fetchProducts = () => {
@@ -20,7 +22,7 @@ const ProductsPage = () => {
         })
         .then(response => response.json())
         .then(response => setProducts(mapResponseToProducts(response)));
-    }
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -30,14 +32,16 @@ const ProductsPage = () => {
         return response.map((product: ProductData) => {
             return {isSelected: false, productData: product}
         });
-    }
+    };
 
     const onModalClose = () => {
-        setModal(false);
+        setProductCreationModal(false);
         fetchProducts();
-    }
+    };
 
-    const createNewProductHandler = () => setModal(true)
+    const onOrderModalClose = () => setOrderAcceptedModal(false);
+
+    const createNewProductHandler = () => setProductCreationModal(true);
 
     const orderHandler = () => {
         const productsToOrder = products.filter(product => product.isSelected).map(product => product.productData.id);
@@ -47,39 +51,63 @@ const ProductsPage = () => {
                 'headers': defaultHeadersWithAuthorization(localStorage.getItem(jwtLocalStorageKey)),
                 'body': JSON.stringify({productIds: productsToOrder}),
             })
-            .then(response => response);
+            .then(response => setOrderAcceptedModal(true));
         }
-    }
+    };
 
     const logOutHandler = () => {
         localStorage.clear();
         window.location.reload();
-    }
+    };
 
     const handleHideMyProducts = () => {
         setHideMyProducts(!hideMyProducts);
-    }
+    };
 
     return (
-        <div>
-            <div>
-                <button onClick={createNewProductHandler}>Create New Product</button>
-                <button onClick={orderHandler}>Order Selected Products</button>
-                <button onClick={logOutHandler}>Log out</button>
-            </div>
-            <h1>Product List</h1>
-            <button onClick={handleHideMyProducts}>{hideMyProducts && 'Don\'t '}Hide My Products</button>
-            <div>
-                {
-                    products.map((product) => {
-                            const isUsersProduct = product.productData.accountID === extractJwtPayload(localStorage.getItem(jwtLocalStorageKey)).sub;
-                            return (!isUsersProduct || !hideMyProducts) && <ProductContainer product={product} isUsersProduct={isUsersProduct}/>;
-                        })
-                }
-            </div>
+        <Container>
+            <Container sx={{
+                        backgroundColor: '#3333', // Dark color for the square
+                        padding: 3, // Adjust padding as needed
+                        borderRadius: 5, // Apply border radius
+                        width: '300px', // Set the width to create a square
+                        height: '120px', // Set the height to create a square
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        border: '2px solid #FFF', 
+                        boxSizing: 'border-box',
+                    }}>
+                <Button onClick={createNewProductHandler}>Create New Product</Button>
+                <Button onClick={orderHandler}>Order Selected Products</Button>
+                <Button onClick={logOutHandler}>Log out</Button>
+            </Container>
+            <Typography>Product List</Typography>
+            <Button onClick={handleHideMyProducts}>{hideMyProducts && 'Don\'t '}Hide My Products</Button>
+            <List sx={{
+                        backgroundColor: '#3333',
+                        borderRadius: 5,
+                        width: '300px',
+                        height: '600px', 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        border: '2px solid #FFF',
+                        boxSizing: 'border-box',
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                    }}>
+                        {   
+                            products.map((product) => {
+                                    const isUsersProduct = product.productData.accountID === extractJwtPayload(localStorage.getItem(jwtLocalStorageKey)).sub;
+                                    return (!isUsersProduct || !hideMyProducts) && <ProductContainer product={product} isUsersProduct={isUsersProduct}/>;
+                                })
+                        }
+            </List>
 
-            <ProductCreationModal isOpen={modal} onClose={onModalClose}/>
-        </div>
+            <ProductCreationModal isOpen={productCreationModal} onClose={onModalClose}/>
+            <OrderAcceptedModal isOpen={orderAcceptedModal} onClose={onOrderModalClose}/>
+        </Container>
     );
 }
 

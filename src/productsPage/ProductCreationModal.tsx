@@ -1,12 +1,12 @@
 
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import Modal from 'react-modal';
 import { createProductUrl, defaultHeadersWithAuthorization } from '../utils/storeApi';
-import { useState } from 'react';
 import { jwtLocalStorageKey } from '../utils/jwtUtils';
-
-Modal.setAppElement('#root');
+import { FormLabel, Modal, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Container } from '@mui/system';
+import { Button } from '@mui/base';
 
 interface ProductCreationRequest {
     name: string;
@@ -44,9 +44,25 @@ const ProductCreationModal: React.FC<{
 
     return (
         <Modal
-            isOpen={isOpen}
-            onRequestClose={onClose}
-            contentLabel="Product specification">
+            open={isOpen}
+            onClose={onClose}
+            sx={{
+                background: 'rgba(255, 255, 255, 1)', 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                <Container sx={{
+                    backgroundColor: '#3333',
+                    padding: '3px',
+                    borderRadius: 5,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    border: '2px solid #FFF',
+                    boxSizing: 'border-box',
+                    height: 'auto'
+                }}>
                 {
                     !isError ? (
                         <Formik initialValues={productCreationRequestInitialValues}
@@ -55,27 +71,23 @@ const ProductCreationModal: React.FC<{
                             initialErrors={{'name': 'Required'}}>
                             {({ isValid }) => (
                                 <Form>
-                                <div>
-                                    <label htmlFor='name'>Product Name:</label>
+                                    <Typography >Product Name:</Typography>
                                     <Field type='text' id='name' name='name' />
-                                    <ErrorMessage name='name' component='div' />
-                                </div>
-
-                                <div>
-                                    <button type="submit" disabled={!isValid} >Submit</button>
-                                </div>
+                                    <div></div>
+                                    <Button type="submit" disabled={!isValid} >Submit</Button>
                             </Form>
                             )}
                         </Formik>
                     ) : (
-                        <div>
-                            <p>
+                        <>
+                            <Typography>
                                 There was an error when creating a product. Maybe there is already a product with the name you have specified.
-                            </p>
-                            <button type="submit" onClick={onClose}>Close</button>
-                        </div>
+                            </Typography>
+                            <Button type="submit" onClick={() => {setIsError(false); onClose();}}>Close</Button>
+                        </>
                     )
                 }
+                </Container>
         </Modal>
     );
 }

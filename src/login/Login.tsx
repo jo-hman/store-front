@@ -3,6 +3,7 @@ import { accountsUrl, createAccessCodeUrl, defaultHeaders } from "../utils/store
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from 'yup';
 import { jwtLocalStorageKey } from "../utils/jwtUtils";
+import { Button, Container, FormLabel, Typography } from "@mui/material";
 
 interface AccountRequest {
     email: string;
@@ -72,28 +73,30 @@ const Login: React.FC<{
             initialErrors={{'email': 'Required', 'password': 'Required'}}>
             {({ isValid, values }) => (
                 <Form>
-                    <div>
-                        <label htmlFor='email'>Email:</label>
+                    <Container sx={{
+                        backgroundColor: '#3333',
+                        padding: 3,
+                        borderRadius: 5,
+                        width: '300px',
+                        height: '300px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        border: '2px solid #FFF', 
+                        boxSizing: 'border-box',
+                    }}>
+                        <FormLabel htmlFor='email'>Email:</FormLabel>
                         <Field type='text' id='email' name='email' />
-                        <ErrorMessage name='email' component='div' />
-                    </div>
-                    <div>
-                        <label htmlFor='password'>Password:</label>
-                        <Field type='password' id='password' name='password' />
-                        <ErrorMessage name='password' component='div' />
-                    </div>
 
-                    <div>
-                        <button type="submit" disabled={!isValid} >Login</button>
-                    </div>
-                    <div>
-                        <button type="button" disabled={!isValid} onClick={() => registerHandler(values)}>Register</button>
-                    </div>
-                    {isError && (
-                        <div>
-                            <p>You cannot log in, you have provided wrong credentials or you cannot register with already existing account</p>
-                        </div>
-                    )}
+                        <FormLabel htmlFor='password'>Password:</FormLabel>
+                        <Field type='password' id='password' name='password' />
+                        <Button type="submit" disabled={!isValid} >Login</Button>
+
+                        <Button type="button" disabled={!isValid} onClick={() => registerHandler(values)}>Register</Button>
+                        {isError && (
+                            <Typography>You cannot log in, you have provided wrong credentials or you cannot register with already existing account</Typography>
+                        )}
+                    </Container>
                 </Form>
                 )}
         </Formik>
