@@ -1,4 +1,5 @@
-import { Container, Modal, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
+import StyledModal from '../components/StyledModal';
 
 const OrderAcceptedModal: React.FC<{
     isOpen: boolean;
@@ -6,31 +7,11 @@ const OrderAcceptedModal: React.FC<{
 }> = ({ isOpen, onClose }) => {
 
     return (
-        <Modal
-            open={isOpen}
-            onClose={onClose}
-            sx={{
-                background: 'rgba(255, 255, 255, 1)', 
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
-                <Container sx={{
-                    backgroundColor: '#3333',
-                    padding: '3px',
-                    borderRadius: 5,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    border: '2px solid #FFF',
-                    boxSizing: 'border-box',
-                    height: 'auto'
-                }}>
-                    <Typography>
-                        Your order will be processed in a minute.
-                    </Typography>
-                </Container>
-        </Modal>
+        <StyledModal isOpen={isOpen} onClose={onClose}>
+            <Typography>
+                Your order will be processed in a minute.
+            </Typography>
+        </StyledModal>
     );
 }
 
